@@ -30,9 +30,7 @@
   "devDependencies": {
     "@types/recharts": "^1.8.29"
   }
-}
-
-
+},
 "scripts": {
   "postinstall": "ls -la node_modules && npm ls lucide-react recharts"
 }
