@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import { Bar, BarChart, Cell, Pie, PieChart, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts'
-import { Loader2 } from 'lucide-react'
+// import { Loader2 } from 'lucide-react'
 
 interface QuizData {
   topic: string
@@ -77,7 +77,7 @@ export default function FeedbackPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black">
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
+        {/* <Loader2 className="w-8 h-8 animate-spin text-white" /> */}
       </div>
     )
   }

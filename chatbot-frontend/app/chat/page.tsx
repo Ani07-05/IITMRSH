@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { X } from 'lucide-react'
 
 export default function Component() {
   const [messages, setMessages] = useState<{ text: string; sender: string; id: number }[]>([
@@ -178,7 +177,7 @@ export default function Component() {
             </Button>
             {isThinking && (
               <Button onClick={stopResponse} className="bg-red-600 text-white hover:bg-red-700" aria-label="Stop response">
-                <X className="h-4 w-4" />
+                &#x2715;
               </Button>
             )}
           </div>

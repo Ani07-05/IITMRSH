@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface Question {
@@ -186,7 +185,7 @@ export default function QuestionPage() {
                 />
               </motion.div>
             ) : (
-              <Send className="h-4 w-4" />
+              "Send"
             )}
           </Button>
         </div>

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from 'lucide-react'
 
 interface PredictionData {
   prediction: number
@@ -61,7 +60,7 @@ export default function PredictionPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black">
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
+        <div className="w-8 h-8 border-t-2 border-blue-500 border-solid rounded-full animate-spin"></div>
       </div>
     )
   }
