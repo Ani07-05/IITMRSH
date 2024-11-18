@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from 'next/navigation'
-import { MessageSquare, Send, Loader2 } from 'lucide-react'
+import { Send, Loader2 } from 'lucide-react'
 
 interface Question {
   question: string
