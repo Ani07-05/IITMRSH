@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
+import { ChartContainer } from "@/components/ui/chart"
 import { Bar, BarChart, Cell, Pie, PieChart, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts'
 
 interface QuizData {
