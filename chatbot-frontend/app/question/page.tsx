@@ -5,22 +5,23 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from 'next/navigation'
+import { MessageSquare, Send, Loader2 } from 'lucide-react'
 
 interface Question {
-  question: string;
-  correct_answer: string;
+  question: string
+  correct_answer: string
 }
 
 interface Message {
-  text: string;
-  sender: 'user' | 'ai';
-  id: number;
-  isQuestion?: boolean;
+  text: string
+  sender: 'user' | 'ai'
+  id: number
+  isQuestion?: boolean
 }
 
 export default function QuestionPage() {
   const [messages, setMessages] = useState<Message[]>([
-    { text: "Hi! What topic would you like to be questioned on?", sender: 'ai', id: Date.now() + Math.random() }
+    { text: "Hi! What topic would you like to be questioned on?", sender: 'ai', id: Date.now() }
   ])
   const [input, setInput] = useState('')
   const [isThinking, setIsThinking] = useState(false)
@@ -32,14 +33,36 @@ export default function QuestionPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://iitmrsh-2.onrender.com"
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  const fetchQuestions = async (topic: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/generate_questions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch questions: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data.questions_and_answers || []
+    } catch (error) {
+      console.error('Error fetching questions:', error)
+      throw new Error('Unable to fetch questions. Please try again later.')
+    }
+  }
+
   const handleSendMessage = async () => {
     if (!input.trim()) return
 
-    const userMessage = { text: input, sender: 'user' as const, id: Date.now() + Math.random() }
+    const userMessage: Message = { text: input, sender: 'user', id: Date.now() }
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setIsThinking(true)
@@ -48,27 +71,22 @@ export default function QuestionPage() {
       if (!quizStarted) {
         setQuizStarted(true)
         setTopic(input)
-        const response = await fetch('http://localhost:5000/generate_questions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ topic: input })
-        })
-        const data = await response.json()
 
-        if (!data.questions_and_answers || data.questions_and_answers.length === 0) {
+        const fetchedQuestions = await fetchQuestions(input)
+        if (fetchedQuestions.length === 0) {
           setMessages(prev => [
             ...prev,
-            { text: "Sorry, I couldn't generate questions for this topic.", sender: 'ai', id: Date.now() + Math.random() }
+            { text: "Sorry, I couldn't generate questions for this topic.", sender: 'ai', id: Date.now() }
           ])
           setIsThinking(false)
           return
         }
 
-        setQuestions(data.questions_and_answers)
+        setQuestions(fetchedQuestions)
         setMessages(prev => [
           ...prev,
-          { text: `Great! I'll ask you 10 questions about ${input}. Let's begin!`, sender: 'ai', id: Date.now() + Math.random() },
-          { text: data.questions_and_answers[0].question, sender: 'ai', id: Date.now() + Math.random(), isQuestion: true }
+          { text: `Great! I'll ask you 10 questions about ${input}. Let's begin!`, sender: 'ai', id: Date.now() },
+          { text: fetchedQuestions[0].question, sender: 'ai', id: Date.now(), isQuestion: true }
         ])
         setCurrentQuestion(1)
       } else {
@@ -78,16 +96,15 @@ export default function QuestionPage() {
         if (currentQuestion < 10) {
           setMessages(prev => [
             ...prev,
-            { 
-              text: questions[currentQuestion].question, 
-              sender: 'ai', 
-              id: Date.now() + Math.random(),
-              isQuestion: true 
+            {
+              text: questions[currentQuestion].question,
+              sender: 'ai',
+              id: Date.now(),
+              isQuestion: true
             }
           ])
           setCurrentQuestion(prev => prev + 1)
         } else {
-          // Prepare quiz data for feedback page
           const quizData = {
             topic,
             questions: questions.map(q => q.question),
@@ -95,25 +112,20 @@ export default function QuestionPage() {
             correctAnswers: questions.map(q => q.correct_answer),
             messages: [...messages, userMessage]
           }
+
           localStorage.setItem('quizData', JSON.stringify(quizData))
-          
-          // Add a final message before redirecting
           setMessages(prev => [
             ...prev,
-            { text: "Great job! You've completed all 10 questions. Let's check your feedback.", sender: 'ai', id: Date.now() + Math.random() }
+            { text: "Great job! You've completed all 10 questions. Let's check your feedback.", sender: 'ai', id: Date.now() }
           ])
-          
-          // Delay the redirect to allow the user to see the final message
-          setTimeout(() => {
-            router.push('/feedback')
-          }, 2000)
+          setTimeout(() => router.push('/feedback'), 2000)
         }
       }
     } catch (error) {
       console.error('Error:', error)
       setMessages(prev => [
         ...prev,
-        { text: 'Sorry, there was an error processing your request.', sender: 'ai', id: Date.now() + Math.random() }
+        { text: 'Sorry, there was an error processing your request.', sender: 'ai', id: Date.now() }
       ])
     } finally {
       setIsThinking(false)
@@ -130,21 +142,25 @@ export default function QuestionPage() {
                 key={message.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div
+                <motion.div
                   className={`
-                    max-w-[85%] px-4 py-2 rounded-lg
+                    max-w-[85%] px-4 py-2 rounded-2xl
                     ${message.sender === 'user' 
                       ? 'bg-blue-600 text-white' 
-                      : message.isQuestion 
-                        ? 'bg-gray-700 text-white'
-                        : 'bg-gray-800 text-gray-300'
+                      : 'bg-transparent text-white border border-gray-700'
                     }
+                    ${message.isQuestion ? 'font-semibold text-lg' : ''}
                   `}
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.text}</p>
-                </div>
+                </motion.div>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -159,33 +175,17 @@ export default function QuestionPage() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your answer..."
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            className="flex-1 bg-gray-800 text-white border-gray-700 focus:border-blue-500"
+            className="flex-1 bg-gray-900 text-white border-gray-700 focus:border-blue-500 rounded-full px-4 py-2"
           />
           <Button 
             onClick={handleSendMessage} 
             disabled={isThinking} 
-            className="bg-blue-600 text-white hover:bg-blue-700"
+            className="bg-white text-black hover:bg-gray-200 rounded-full px-4 py-2"
           >
             {isThinking ? (
-              <motion.div className="flex gap-1">
-                <motion.div
-                  className="w-2 h-2 bg-white rounded-full"
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ duration: 0.5, repeat: Infinity }}
-                />
-                <motion.div
-                  className="w-2 h-2 bg-white rounded-full"
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ duration: 0.5, repeat: Infinity, delay: 0.1 }}
-                />
-                <motion.div
-                  className="w-2 h-2 bg-white rounded-full"
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ duration: 0.5, repeat: Infinity, delay: 0.2 }}
-                />
-              </motion.div>
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              "Send"
+              <Send className="w-5 h-5" />
             )}
           </Button>
         </div>
