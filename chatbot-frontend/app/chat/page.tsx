@@ -1,9 +1,39 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+
+const TypewriterText = React.memo(({ text }: { text: string }) => {
+  const [displayedText, setDisplayedText] = useState('')
+  const [isComplete, setIsComplete] = useState(false)
+
+  const animateText = useCallback(() => {
+    let currentIndex = 0
+    const timer = setInterval(() => {
+      if (currentIndex < text.length) {
+        setDisplayedText(prev => prev + text[currentIndex])
+        currentIndex++
+      } else {
+        clearInterval(timer)
+        setIsComplete(true)
+      }
+    }, 20)
+
+    return () => clearInterval(timer)
+  }, [text])
+
+  useEffect(() => {
+    if (!isComplete) {
+      animateText()
+    }
+  }, [animateText, isComplete])
+
+  return <span>{displayedText}</span>
+})
+
+TypewriterText.displayName = 'TypewriterText'
 
 export default function ChatComponent() {
   const [messages, setMessages] = useState<{ text: string; sender: string; id: number }[]>([
@@ -89,27 +119,6 @@ export default function ChatComponent() {
     </div>
   )
 
-  // TypewriterText as a separate component (avoids dynamic function creation issues)
-  const TypewriterText = ({ text }: { text: string }) => {
-    const [displayedText, setDisplayedText] = useState('')
-
-    useEffect(() => {
-      let currentIndex = 0
-      const timer = setInterval(() => {
-        if (currentIndex < text.length) {
-          setDisplayedText(text.slice(0, currentIndex + 1))
-          currentIndex++
-        } else {
-          clearInterval(timer)
-        }
-      }, 20)
-
-      return () => clearInterval(timer)
-    }, [text])
-
-    return <span>{displayedText}</span>
-  }
-
   return (
     <div className="flex flex-col h-screen bg-black text-white">
       <div className="flex-1 overflow-y-auto p-4">
@@ -135,7 +144,7 @@ export default function ChatComponent() {
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                     {message.sender === 'ai' ? (
-                      <TypewriterText text={message.text} />
+                      React.createElement(TypewriterText, { text: message.text, key: message.id })
                     ) : (
                       message.text
                     )}
