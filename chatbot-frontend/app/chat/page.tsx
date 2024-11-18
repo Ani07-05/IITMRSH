@@ -5,6 +5,30 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
+const TypewriterText = ({ text }: { text: string }) => {
+  const [displayedText, setDisplayedText] = useState('')
+  const animationCompleted = useRef(false)
+
+  useEffect(() => {
+    if (animationCompleted.current) return
+
+    let currentIndex = 0
+    const timer = setInterval(() => {
+      if (currentIndex < text.length) {
+        setDisplayedText(prev => prev + text[currentIndex])
+        currentIndex++
+      } else {
+        clearInterval(timer)
+        animationCompleted.current = true
+      }
+    }, 20)
+
+    return () => clearInterval(timer)
+  }, [text])
+
+  return <span>{displayedText}</span>
+}
+
 export default function Component() {
   const [messages, setMessages] = useState<{ text: string; sender: string; id: number }[]>([
     { text: "Hi! How can I help you today?", sender: 'ai', id: 0 }
@@ -24,7 +48,7 @@ export default function Component() {
     if (input.trim() === '') return
 
     const newMessage = { text: input, sender: 'user', id: Date.now() }
-    setMessages([...messages, newMessage])
+    setMessages(prev => [...prev, newMessage])
     setInput('')
     setIsThinking(true)
 
@@ -87,35 +111,6 @@ export default function Component() {
     </div>
   )
 
-  const TypewriterText = ({ text }: { text: string }) => {
-    const [displayedText, setDisplayedText] = useState('')
-    const [isComplete, setIsComplete] = useState(false)
-    const hasAnimated = useRef(false)
-    
-    useEffect(() => {
-      if (isComplete || hasAnimated.current) {
-        setDisplayedText(text)
-        return
-      }
-      
-      hasAnimated.current = true
-      let currentIndex = 0
-      const timer = setInterval(() => {
-        if (currentIndex < text.length) {
-          setDisplayedText(text.slice(0, currentIndex + 1))
-          currentIndex++
-        } else {
-          setIsComplete(true)
-          clearInterval(timer)
-        }
-      }, 20)
-      
-      return () => clearInterval(timer)
-    }, [text, isComplete])
-
-    return <span>{displayedText}</span>
-  }
-
   return (
     <div className="flex flex-col h-screen bg-black text-white">
       <div className="flex-1 overflow-y-auto p-4">
@@ -141,7 +136,7 @@ export default function Component() {
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                     {message.sender === 'ai' ? (
-                      <TypewriterText text={message.text} />
+                      <TypewriterText key={message.id} text={message.text} />
                     ) : (
                       message.text
                     )}
