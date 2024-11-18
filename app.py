@@ -5,7 +5,9 @@ import json
 import re
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "methods": ["GET", "POST", "OPTIONS"]}})
+
+# Allow CORS from your frontend's domain (both localhost and production)
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://iitmrsh-aygs.vercel.app"]}})
 
 # Configure Gemini API
 genai.configure(api_key="AIzaSyCP0FQqIDaUGGKeNYiK2sDuGeRKg_Zx1GI")
@@ -27,12 +29,9 @@ def generate_questions():
         """
         
         response = model.generate_content(prompt)
-        print("API Response:", response.text)  # Log the response for debugging
+        print("API Response:", response.text)
 
-        # Remove backticks and language label (like ```json) using regex
         clean_response_text = re.sub(r"^```[a-zA-Z]*\n|\n```$", "", response.text.strip(), flags=re.MULTILINE)
-
-        # Try to parse the response as JSON
         questions_and_answers = json.loads(clean_response_text)
         
         return jsonify({"questions_and_answers": questions_and_answers})
@@ -52,14 +51,9 @@ def generate_feedback():
         return jsonify({"error": "No quiz content provided"}), 400
 
     try:
-        # Parse the quiz_content string into a Python dictionary
         quiz_data = json.loads(quiz_content)
         
-        # Create a formatted string for the AI prompt
-        formatted_quiz = f"""
-        Topic: {quiz_data['topic']}
-        Questions and Answers:
-        """
+        formatted_quiz = f"Topic: {quiz_data['topic']}\nQuestions and Answers:\n"
         for q, ua, ca in zip(quiz_data['questions'], quiz_data['user_answers'], quiz_data['correct_answers']):
             formatted_quiz += f"\nQ: {q}\nUser's Answer: {ua}\nCorrect Answer: {ca}\n"
 
@@ -83,12 +77,11 @@ def generate_feedback():
         """
         
         response = model.generate_content(prompt)
-        print("API Response (Feedback):", response.text)  # Log the response for debugging
+        print("API Response (Feedback):", response.text)
 
-        # Clean the response text
         clean_response_text = re.sub(r"^```[a-zA-Z]*\n|\n```$", "", response.text.strip(), flags=re.MULTILINE)
+        feedback = json.loads(clean_response_text)
         
-        feedback = json.loads(clean_response_text)  # Attempt to parse as JSON
         return jsonify({"feedback": feedback})
     except json.JSONDecodeError as jde:
         print("JSON decode error in feedback response:", jde)
@@ -108,10 +101,7 @@ def predict():
     try:
         quiz_data = json.loads(quiz_content)
         
-        formatted_quiz = f"""
-        Topic: {quiz_data['topic']}
-        Questions and Answers:
-        """
+        formatted_quiz = f"Topic: {quiz_data['topic']}\nQuestions and Answers:\n"
         for q, ua, ca in zip(quiz_data['questions'], quiz_data['userAnswers'], quiz_data['correctAnswers']):
             formatted_quiz += f"\nQ: {q}\nUser's Answer: {ua}\nCorrect Answer: {ca}\n"
 
@@ -138,12 +128,11 @@ def predict():
         """
         
         response = model.generate_content(prompt)
-        print("API Response (Prediction):", response.text)  # Log the response for debugging
+        print("API Response (Prediction):", response.text)
 
-        # Clean the response text
         clean_response_text = re.sub(r"^```[a-zA-Z]*\n|\n```$", "", response.text.strip(), flags=re.MULTILINE)
+        prediction_data = json.loads(clean_response_text)
         
-        prediction_data = json.loads(clean_response_text)  # Attempt to parse as JSON
         return jsonify(prediction_data)
     except json.JSONDecodeError as jde:
         print("JSON decode error in prediction response:", jde)
@@ -152,11 +141,8 @@ def predict():
         print(f"Error generating prediction: {e}")
         return jsonify({"error": f"Failed to generate prediction: {str(e)}"}), 500
 
-@app.route('/chat', methods=['POST', 'OPTIONS'])
+@app.route('/chat', methods=['POST'])
 def chat():
-    if request.method == 'OPTIONS':
-        return '', 204
-    
     data = request.json
     message = data.get("message")
 
@@ -165,7 +151,7 @@ def chat():
 
     try:
         response = model.generate_content(message)
-        print("API Response (Chat):", response.text)  # Log the response for debugging
+        print("API Response (Chat):", response.text)
 
         return jsonify({"response": response.text})
     except Exception as e:
@@ -173,4 +159,4 @@ def chat():
         return jsonify({"error": f"Failed to generate response: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
