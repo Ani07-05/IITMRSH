@@ -43,8 +43,12 @@ export default function QuestionPage() {
     try {
       const response = await fetch(`${API_BASE_URL}/generate_questions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Origin': window.location.origin
+        },
+        body: JSON.stringify({ topic }),
+        credentials: 'include'
       })
 
       if (!response.ok) {
@@ -76,8 +80,9 @@ export default function QuestionPage() {
         if (fetchedQuestions.length === 0) {
           setMessages(prev => [
             ...prev,
-            { text: "Sorry, I couldn't generate questions for this topic.", sender: 'ai', id: Date.now() }
+            { text: "Sorry, I couldn't generate questions for this topic. Please try a different topic.", sender: 'ai', id: Date.now() }
           ])
+          setQuizStarted(false)
           setIsThinking(false)
           return
         }
@@ -93,7 +98,7 @@ export default function QuestionPage() {
         const updatedUserAnswers = [...userAnswers, input]
         setUserAnswers(updatedUserAnswers)
 
-        if (currentQuestion < 10) {
+        if (currentQuestion < questions.length - 1) {
           setMessages(prev => [
             ...prev,
             {
@@ -116,7 +121,7 @@ export default function QuestionPage() {
           localStorage.setItem('quizData', JSON.stringify(quizData))
           setMessages(prev => [
             ...prev,
-            { text: "Great job! You've completed all 10 questions. Let's check your feedback.", sender: 'ai', id: Date.now() }
+            { text: "Great job! You've completed all questions. Let's check your feedback.", sender: 'ai', id: Date.now() }
           ])
           setTimeout(() => router.push('/feedback'), 2000)
         }
@@ -125,8 +130,9 @@ export default function QuestionPage() {
       console.error('Error:', error)
       setMessages(prev => [
         ...prev,
-        { text: 'Sorry, there was an error processing your request.', sender: 'ai', id: Date.now() }
+        { text: 'Sorry, there was an error processing your request. Please try again.', sender: 'ai', id: Date.now() }
       ])
+      setQuizStarted(false)
     } finally {
       setIsThinking(false)
     }
