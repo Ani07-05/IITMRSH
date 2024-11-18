@@ -14,17 +14,14 @@ export default function ChatComponent() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  // Use environment variable for the API base URL
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://iitmrsh-2.onrender.com";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://iitmrsh-2.onrender.com"
 
-  // Scroll to the latest message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
   useEffect(scrollToBottom, [messages])
 
-  // Function to send a message to the backend
   const sendMessage = async () => {
     if (input.trim() === '') return
 
@@ -64,7 +61,6 @@ export default function ChatComponent() {
     }
   }
 
-  // Function to stop a pending response
   const stopResponse = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
@@ -73,7 +69,6 @@ export default function ChatComponent() {
     }
   }
 
-  // Animation for the "thinking" state
   const ThinkingAnimation = () => (
     <div className="flex space-x-2 p-4">
       <motion.div
@@ -94,28 +89,26 @@ export default function ChatComponent() {
     </div>
   )
 
-  // Typewriter effect for AI messages
-  const TypewriterText = useMemo(() => {
-    return ({ text }: { text: string }) => {
-      const [displayedText, setDisplayedText] = useState('')
+  // TypewriterText as a separate component (avoids dynamic function creation issues)
+  const TypewriterText = ({ text }: { text: string }) => {
+    const [displayedText, setDisplayedText] = useState('')
 
-      useEffect(() => {
-        let currentIndex = 0
-        const timer = setInterval(() => {
-          if (currentIndex < text.length) {
-            setDisplayedText(text.slice(0, currentIndex + 1))
-            currentIndex++
-          } else {
-            clearInterval(timer)
-          }
-        }, 20)
+    useEffect(() => {
+      let currentIndex = 0
+      const timer = setInterval(() => {
+        if (currentIndex < text.length) {
+          setDisplayedText(text.slice(0, currentIndex + 1))
+          currentIndex++
+        } else {
+          clearInterval(timer)
+        }
+      }, 20)
 
-        return () => clearInterval(timer)
-      }, [text])
+      return () => clearInterval(timer)
+    }, [text])
 
-      return <span>{displayedText}</span>
-    }
-  }, [])
+    return <span>{displayedText}</span>
+  }
 
   return (
     <div className="flex flex-col h-screen bg-black text-white">
