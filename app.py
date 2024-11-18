@@ -7,8 +7,7 @@ import re
 app = Flask(__name__)
 
 # Allow CORS from your frontend's domain (both localhost and production)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://iitmrsh-aygs.vercel.app"]}})
-
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 # Configure Gemini API
 genai.configure(api_key="AIzaSyCP0FQqIDaUGGKeNYiK2sDuGeRKg_Zx1GI")
 model = genai.GenerativeModel("models/gemini-1.5-flash")
