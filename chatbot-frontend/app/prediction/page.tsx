@@ -20,6 +20,8 @@ export default function PredictionPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://iitmrsh-2.onrender.com"
+
   useEffect(() => {
     const fetchPrediction = async () => {
       const quizData = localStorage.getItem('quizData')
@@ -30,10 +32,10 @@ export default function PredictionPage() {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/predict', {
+        const response = await fetch(`${API_BASE_URL}/predict`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ quiz_content: quizData })
+          body: JSON.stringify({ quiz_content: quizData }),
         })
 
         if (!response.ok) {
@@ -67,7 +69,7 @@ export default function PredictionPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
         <Card className="w-full max-w-md bg-[#111111] border-[#2D2D2D]">
           <CardContent className="pt-6">
             <p className="text-center mb-6">{error}</p>
