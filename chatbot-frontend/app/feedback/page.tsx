@@ -149,6 +149,64 @@ export default function FeedbackPage() {
           </Card>
         </div>
 
+        <Card className="bg-[#111111] border-[#2D2D2D]">
+          <CardHeader>
+            <CardTitle>Quiz Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {quizData.questions.map((question, index) => (
+                <div key={index} className="border-b border-[#2D2D2D] pb-4 last:border-b-0">
+                  <p className="font-semibold mb-2">Question {index + 1}: {question}</p>
+                  <p className={`mb-1 ${quizData.userAnswers[index] === quizData.correctAnswers[index] ? 'text-green-500' : 'text-red-500'}`}>
+                    Your Answer: {quizData.userAnswers[index]}
+                  </p>
+                  <p className="text-green-500 mb-2">Correct Answer: {quizData.correctAnswers[index]}</p>
+                  <p className="text-sm text-gray-400">
+                    {quizData.userAnswers[index] === quizData.correctAnswers[index]
+                      ? "Correct! Well done."
+                      : `Incorrect. The correct answer is "${quizData.correctAnswers[index]}". Make sure to review this topic.`}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-[#111111] border-[#2D2D2D]">
+          <CardHeader>
+            <CardTitle>Feedback Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold mb-2">Strengths:</h3>
+                <ul className="list-disc pl-5">
+                  {feedback.strengths.map((strength, index) => (
+                    <li key={index}>{strength}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Areas for Improvement:</h3>
+                <ul className="list-disc pl-5">
+                  {feedback.weaknesses.map((weakness, index) => (
+                    <li key={index}>{weakness}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="mt-4">
+              <h3 className="font-semibold mb-2">Recommendations:</h3>
+              <ul className="list-disc pl-5">
+                {feedback.recommendations.map((recommendation, index) => (
+                  <li key={index}>{recommendation}</li>
+                ))}
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="text-center">
           <Button
             className="bg-white text-black hover:bg-gray-200"
