@@ -11,7 +11,7 @@ CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://iitmr
 
 # Configure Gemini API
 genai.configure(api_key="AIzaSyCP0FQqIDaUGGKeNYiK2sDuGeRKg_Zx1GI")
-model = genai.GenerativeModel("gemini-1.5-pro")
+model = genai.GenerativeModel("models/gemini-1.5-flash")
 
 @app.route('/generate_questions', methods=['POST'])
 def generate_questions():
