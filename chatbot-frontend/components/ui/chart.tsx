@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ResponsiveContainer } from "recharts"
+import * as React from "react";
+import { ResponsiveContainer } from "recharts";
+import { cn } from "@/lib/utils";
 
-import { cn } from "@/lib/utils"
-
+// ChartContainer component
 export function ChartContainer({
   children,
   className,
   config,
   ...props
 }: React.ComponentProps<typeof ResponsiveContainer> & {
-  config: Record<string, { label: string; color: string }>
+  config: Record<string, { label: string; color: string }>;
 }) {
   return (
     <ResponsiveContainer {...props} className={cn("w-full h-[350px]", className)}>
@@ -51,18 +51,25 @@ export function ChartContainer({
         {children}
       </div>
     </ResponsiveContainer>
-  )
+  );
 }
 
+// ChartTooltip component
 export function ChartTooltip({
   active,
   payload,
   label,
   content,
   ...props
-}: React.ComponentProps<typeof ChartTooltipContent>) {
+}: React.ComponentProps<typeof ChartTooltipContent> & {
+  content?: (props: {
+    active: boolean;
+    payload: Array<unknown>;
+    label: string;
+  }) => React.ReactNode;
+}) {
   if (!(active && payload && payload.length)) {
-    return null
+    return null;
   }
 
   return (
@@ -79,9 +86,10 @@ export function ChartTooltip({
         <ChartTooltipContent payload={payload} label={label} />
       )}
     </div>
-  )
+  );
 }
 
+// ChartTooltipContent component
 export function ChartTooltipContent({
   payload,
   label,
@@ -90,15 +98,17 @@ export function ChartTooltipContent({
   labelFormatter,
   valueFormatter,
 }: {
-  active?: boolean
-  payload?: Array<{ [key: string]: any }>
-  label?: string
-  labelKey?: string
-  valueKey?: string
-  labelFormatter?: (label: string) => string
-  valueFormatter?: (value: number) => string
-  content?: (props: { active: boolean; payload: any[]; label: string }) => React.ReactNode
-  className?: string
+  active?: boolean;
+  payload?: Array<{
+    [key: string]: string | number | unknown;
+    fill?: string;
+  }>;
+  label?: string;
+  labelKey?: string;
+  valueKey?: string;
+  labelFormatter?: (label: string) => string;
+  valueFormatter?: (value: number | string) => string;
+  className?: string;
 }) {
   return (
     <>
@@ -111,17 +121,17 @@ export function ChartTooltipContent({
           />
           <span className="mr-2">
             {labelFormatter
-              ? labelFormatter(item[labelKey])
-              : item[labelKey]}
+              ? labelFormatter(item[labelKey as string] as string)
+              : (item[labelKey as string] as string)}
             :
           </span>
           <span className="font-medium">
             {valueFormatter
-              ? valueFormatter(item[valueKey])
-              : item[valueKey]}
+              ? valueFormatter(item[valueKey as string] as number)
+              : String(item[valueKey as string])}
           </span>
         </div>
       ))}
     </>
-  )
+  );
 }

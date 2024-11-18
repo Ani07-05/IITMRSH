@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import { Bar, BarChart, Cell, Pie, PieChart, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts'
 // import { Loader2 } from 'lucide-react'
@@ -147,6 +146,10 @@ export default function FeedbackPage() {
                     <ChartTooltip
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
+                          const data = payload[0] as {
+                            name: string;
+                            value: number;
+                          };
                           return (
                             <div className="rounded-lg border bg-background p-2 shadow-sm">
                               <div className="grid grid-cols-2 gap-2">
@@ -155,7 +158,7 @@ export default function FeedbackPage() {
                                     Score
                                   </span>
                                   <span className="font-bold text-muted-foreground">
-                                    {payload[0].value}%
+                                    {data.value}%
                                   </span>
                                 </div>
                               </div>
@@ -205,15 +208,19 @@ export default function FeedbackPage() {
                     <ChartTooltip
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
+                          const data = payload[0] as {
+                            name: string;
+                            value: number;
+                          };
                           return (
                             <div className="rounded-lg border bg-background p-2 shadow-sm">
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="flex flex-col">
                                   <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                    {payload[0].name}
+                                    {data.name}
                                   </span>
                                   <span className="font-bold text-muted-foreground">
-                                    {payload[0].value}
+                                    {data.value}
                                   </span>
                                 </div>
                               </div>
@@ -228,84 +235,6 @@ export default function FeedbackPage() {
               </ChartContainer>
             </CardContent>
           </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-[#111111] border-[#2D2D2D]">
-            <CardHeader>
-              <CardTitle>Quiz Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {quizData.questions.map((question, index) => (
-                  <div key={index} className="p-4 rounded-lg bg-[#252A33] space-y-2">
-                    <p className="font-medium">{index + 1}. {question}</p>
-                    <p className="text-sm text-blue-400">Your answer: {quizData.userAnswers[index]}</p>
-                    <p className="text-sm text-green-400">Correct answer: {quizData.correctAnswers[index]}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="space-y-6">
-            <Card className="bg-[#111111] border-[#2D2D2D]">
-              <CardHeader>
-                <CardTitle>Strengths</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc list-inside space-y-2">
-                  {feedback.strengths.map((strength, index) => (
-                    <li key={index} className="text-sm">{strength}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-[#111111] border-[#2D2D2D]">
-              <CardHeader>
-                <CardTitle>Areas for Improvement</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc list-inside space-y-2">
-                  {feedback.weaknesses.map((weakness, index) => (
-                    <li key={index} className="text-sm">{weakness}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-[#111111] border-[#2D2D2D]">
-              <CardHeader>
-                <CardTitle>Recommendations</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc list-inside space-y-2">
-                  {feedback.recommendations.map((recommendation, index) => (
-                    <li key={index} className="text-sm">{recommendation}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center justify-center gap-4 py-8">
-          <p className="text-4xl font-bold">Overall Score: {feedback.overallScore}%</p>
-          <div className="flex space-x-4">
-            <Button 
-              onClick={() => router.push('/')} 
-              className="bg-white text-black hover:bg-gray-200 font-semibold"
-            >
-              Take Another Quiz
-            </Button>
-            <Button 
-              onClick={() => router.push('/prediction')} 
-              className="bg-white text-black hover:bg-gray-200 font-semibold"
-            >
-              Get prediction on your future tests
-            </Button>
-          </div>
         </div>
       </div>
     </div>
