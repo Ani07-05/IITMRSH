@@ -3,13 +3,14 @@ from flask_cors import CORS
 import google.generativeai as genai
 import json
 import re
+import os
 
 app = Flask(__name__)
 
 # Allow CORS from your frontend's domain (both localhost and production)
 CORS(app, resources={r"/*": {"origins": ["https://iitmrshv2-six.vercel.app", "http://localhost:3000"]}}, supports_credentials=True)
 # Configure Gemini API
-genai.configure(api_key="AIzaSyCP0FQqIDaUGGKeNYiK2sDuGeRKg_Zx1GI")
+genai.configure(api_key=os.getenv("GENAI_API_KEY"))
 model = genai.GenerativeModel("models/gemini-1.5-flash")
 
 @app.route('/generate_questions', methods=['POST'])
